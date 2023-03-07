@@ -85,6 +85,7 @@ def findSimilarityScore(letter1, letter2, similarity_matrix):
     index2 = simDict[letter2]
     return similarity_matrix[index1][index2]
 
+
 """ Calculates score matrix using SW algorithm"""
 def scoreSW(openGap, extGap, sequence1, sequence2, similarity_matrix, matrix):
     # Initializing variables
@@ -95,6 +96,7 @@ def scoreSW(openGap, extGap, sequence1, sequence2, similarity_matrix, matrix):
     max_score = -1
     max_score_indicies = (-1, -1)
     traceback_matrix = np.zeros((rows, cols), dtype=int) #Creating matrix to keep track of optimal traceback
+    direction_matrix = np.zeros((rows, cols), dtype=int)
 
     for row in range(1, len(sequence1) + 1):
         for col in range(1, len(sequence2) + 1):
@@ -106,11 +108,13 @@ def scoreSW(openGap, extGap, sequence1, sequence2, similarity_matrix, matrix):
             # get all values directly up from cell
             for val in range(1, row + 1):
                 up_gap_penalty.append(matrix[val][col] + openGap + (row-val-1)*extGap)
+            index_up = np.argmax(up_gap_penalty)
             max_up_score = max(up_gap_penalty)
 
             # get all values directly left from cell
             for val in range(1, col + 1):
                 left_gap_penalty.append(matrix[row][val] + openGap + (col-val-1)*extGap)
+            index_left = np.argmax(left_gap_penalty)
             score_left = max(left_gap_penalty)
             
             # find max value
@@ -128,24 +132,27 @@ def scoreSW(openGap, extGap, sequence1, sequence2, similarity_matrix, matrix):
             # traceback setup
             if matrix[row][col] == 0:
                 traceback_matrix[row][col] = Trace.STOP
+                direction_matrix[row][col] = 0
             elif matrix[row][col] == diagonal:
                 traceback_matrix[row][col] = Trace.DIAGONAL
+                direction_matrix[row][col] = 1
             elif matrix[row][col] == max_up_score:
                 traceback_matrix[row][col] = Trace.UP
+                direction_matrix[row][col] = index_up + 1
             elif matrix[row][col] == score_left:
-                traceback_matrix[row][col] = Trace.LEFT            
-
+                traceback_matrix[row][col] = Trace.LEFT
+                direction_matrix[row][col] = index_left + 1
             # identify the max score
             if matrix[row][col] >= max_score:
                 max_score_indicies = (row, col)
                 max_score = matrix[row][col]
 
     # call traceback using traceback matrix
-    seq1, seq2 = traceback(traceback_matrix, max_score_indicies, sequence1, sequence2, matrix)
+    seq1, seq2 = traceback(traceback_matrix, max_score_indicies, sequence1, sequence2)
     return formatAlignment(sequence1, sequence2, seq1, seq2, max_score_indicies)
 
 """Follows traceback part of SW algorithm"""
-def traceback(tracing_matrix, max_score_indicies, sequence1, sequence2, matrix):
+def traceback(tracing_matrix, max_score_indicies, sequence1, sequence2):
 
     # Initializing variables
     final_sequence1 = ""
@@ -153,7 +160,7 @@ def traceback(tracing_matrix, max_score_indicies, sequence1, sequence2, matrix):
     next_char_1 = ""
     next_char_2 = ""
     i_start, j_start = max_score_indicies
-
+    
     # Doing traceback
     while tracing_matrix[i_start][j_start] != 0:
         if tracing_matrix[i_start][j_start] == Trace.DIAGONAL:
@@ -161,6 +168,7 @@ def traceback(tracing_matrix, max_score_indicies, sequence1, sequence2, matrix):
             next_char_2 = sequence2[j_start - 1]
             i_start -= 1
             j_start -= 1
+
         elif tracing_matrix[i_start][j_start] == Trace.UP:
             next_char_1 = sequence1[i_start - 1]
             next_char_2 = '-'
