@@ -1,6 +1,6 @@
 # SW_Alignment
 
-This program carries out the Smith-Waterman alignment algorithm. 
+This program utilizes the Smith-Waterman alignment algorithm and takes in two amino acid sequences for matching. 
 
 **Instructions for Installation**
 
