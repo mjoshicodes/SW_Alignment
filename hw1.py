@@ -6,7 +6,7 @@ import sys
 #!/usr/bin/python
 __author__ = "Megha Joshi"
 __email__ = "megha.joshi@yale.edu"
-__copyright__ = "Copyright 2021"
+__copyright__ = "Copyright 2023"
 __license__ = "GPL"
 __version__ = "1.0.0"
 
@@ -57,7 +57,7 @@ def printBestLocalAlignment(sequence1, match_string, sequence2, max_score, f):
     print(match_string, file=f)
     print(sequence2, file=f)
 
-# Create trace class to track stop, left, up and diagonal. Got this idea from looking at different implementations of SW
+# Create trace class to track stop, left, up and diagonal
 class Trace(IntEnum):
     STOP = 0
     LEFT = 2
